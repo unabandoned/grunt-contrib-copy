@@ -1,36 +1,41 @@
 {
-  "name": "grunt-contrib-copy",
+  "name": "@unabandoned/grunt-contrib-copy",
   "description": "Copy files and folders",
   "version": "1.0.0",
   "author": {
     "name": "Grunt Team",
-    "url": "http://gruntjs.com/"
+    "url": "https://gruntjs.com/"
   },
-  "repository": "gruntjs/grunt-contrib-copy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unabandoned/grunt-contrib-copy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unabandoned/grunt-contrib-copy/issues"
+  },
+  "homepage": "https://github.com/unabandoned/grunt-contrib-copy#readme",
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=22.12"
   },
   "main": "tasks/copy.js",
   "scripts": {
-    "test": "grunt test"
-  },
-  "dependencies": {
-    "chalk": "^1.1.1",
-    "file-sync-cmp": "^0.1.0"
+    "test": "node --test test/*_test.js",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
-    "grunt": "^1.0.0",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-internal": "^1.1.0",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-contrib-nodeunit": "^1.0.0"
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "grunt": "1.6.3"
   },
   "keywords": [
     "gruntplugin"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "files": [
     "tasks"
-  ],
-  "appveyor_id": "fe6l517l01ys2y86"
+  ]
 }

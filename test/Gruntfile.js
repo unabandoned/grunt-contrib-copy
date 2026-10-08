@@ -1,35 +1,12 @@
-/*
- * grunt-contrib-copy
- * http://gruntjs.com/
- *
- * Copyright (c) 2016 Chris Talkington, contributors
- * Licensed under the MIT license.
- */
+'use strict';
 
+var path = require('node:path');
+
+// Run by test/helpers/grunt.js with --base set to a temporary directory that
+// holds a copy of test/fixtures, so every path below is relative to it.
 module.exports = function(grunt) {
-  'use strict';
-
-  // Make an empty dir for testing as git doesn't track empty folders.
-  grunt.file.mkdir('test/fixtures/empty_folder');
-  grunt.file.mkdir('test/expected/copy_test_mix/empty_folder');
-
-  // Project configuration.
   grunt.initConfig({
-    jshint: {
-      all: [
-        'Gruntfile.js',
-        'tasks/*.js',
-        '<%= nodeunit.tests %>'
-      ],
-      options: {
-        jshintrc: '.jshintrc'
-      }
-    },
-
-    // Before generating any new files, remove any previously-created files.
-    clean: {
-      test: ['tmp']
-    },
+    pkg: { version: '9.8.7' },
 
     testVars: {
       name: 'grunt-contrib-copy',
@@ -37,7 +14,6 @@ module.exports = function(grunt) {
       match: 'folder_one/*'
     },
 
-    // Configuration to be run (and then tested).
     copy: {
       main: {
         files: [
@@ -65,12 +41,6 @@ module.exports = function(grunt) {
         ]
       },
 
-      verbose: {
-        files: [
-          { expand: true, src: ['test/fixtures/**'], dest: 'tmp/copy_test_verbose/' }
-        ]
-      },
-
       mode: {
         options: {
           mode: '0444'
@@ -89,6 +59,14 @@ module.exports = function(grunt) {
           src: ['time_folder/**'],
           dest: 'tmp/copy_test_modeDir/'
         }]
+      },
+
+      modeKeep: {
+        options: {
+          mode: true
+        },
+        src: ['test/fixtures/executable.sh'],
+        dest: 'tmp/executable.sh'
       },
 
       process: {
@@ -113,31 +91,45 @@ module.exports = function(grunt) {
           timestamp: true
         },
         files: [
-            { expand: true, cwd: 'test/fixtures/time_folder/', src: ['**'], dest: 'tmp/copy_test_timestamp/' },
-            { src: 'test/fixtures/time_folder/test.js', dest: 'tmp/copy_test_timestamp/test1.js' }
+          { expand: true, cwd: 'test/fixtures/time_folder/', src: ['**'], dest: 'tmp/copy_test_timestamp/' },
+          { src: 'test/fixtures/time_folder/test.js', dest: 'tmp/copy_test_timestamp/test1.js' }
+        ]
+      },
+
+      // The shape of CyberChef's copy:ghPages and copy:standalone targets:
+      // process only HTML, run grunt templates, copy onto itself or a
+      // templated name.
+      inPlace: {
+        options: {
+          process: function (content, srcpath) {
+            if (srcpath.indexOf('index.html') >= 0) {
+              content = content.replace('</body></html>', '<p>extra</p></body></html>');
+              return grunt.template.process(content, srcpath);
+            }
+            return content;
+          },
+          noProcess: ['**', '!**/*.html']
+        },
+        files: [{ src: ['build/prod/index.html'], dest: 'build/prod/index.html' }]
+      },
+      renamed: {
+        options: {
+          process: function (content, srcpath) {
+            if (srcpath.indexOf('index.html') >= 0) {
+              content = content.replace(/<a [^>]+>Download.+?<\/a>/, '<span>Version <%= pkg.version %></span>');
+              return grunt.template.process(content, srcpath);
+            }
+            return content;
+          },
+          noProcess: ['**', '!**/*.html']
+        },
+        files: [
+          { src: ['build/prod/index.html'], dest: 'build/prod/App_v<%= pkg.version %>.html' },
+          { src: ['build/prod/logo.png'], dest: 'build/prod/copied-logo.png' }
         ]
       }
-    },
-
-    // Unit tests.
-    nodeunit: {
-      tests: ['test/*_test.js']
     }
   });
 
-  // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
-
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-nodeunit');
-  grunt.loadNpmTasks('grunt-contrib-internal');
-
-  // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-  // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['jshint', 'clean', 'copy', 'nodeunit']);
-
-  // By default, lint and run all tests.
-  grunt.registerTask('default', ['test', 'build-contrib']);
+  grunt.loadTasks(path.join(__dirname, '..', 'tasks'));
 };

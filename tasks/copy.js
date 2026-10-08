@@ -12,9 +12,39 @@
 module.exports = function(grunt) {
   var path = require('path');
   var fs = require('fs');
-  var chalk = require('chalk');
-  var fileSyncCmp = require('file-sync-cmp');
+  var styleText = require('util').styleText;
   var isWindows = process.platform === 'win32';
+
+  var cyan = function(text) {
+    return styleText('cyan', text);
+  };
+
+  // Byte-for-byte comparison of two files, read in chunks so large files are
+  // never held in memory whole.
+  var equalFiles = function(a, b) {
+    var size = fs.statSync(a).size;
+    if (size !== fs.statSync(b).size) {
+      return false;
+    }
+    var bufA = Buffer.alloc(65536);
+    var bufB = Buffer.alloc(65536);
+    var fdA = fs.openSync(a, 'r');
+    var fdB = fs.openSync(b, 'r');
+    try {
+      for (var pos = 0; pos < size;) {
+        var readA = fs.readSync(fdA, bufA, 0, bufA.length, pos);
+        var readB = fs.readSync(fdB, bufB, 0, bufB.length, pos);
+        if (readA !== readB || readA === 0 || !bufA.subarray(0, readA).equals(bufB.subarray(0, readB))) {
+          return false;
+        }
+        pos += readA;
+      }
+      return true;
+    } finally {
+      fs.closeSync(fdA);
+      fs.closeSync(fdB);
+    }
+  };
 
   grunt.registerMultiTask('copy', 'Copy files.', function() {
 
@@ -34,7 +64,7 @@ module.exports = function(grunt) {
     };
 
     var detectDestType = function(dest) {
-      if (grunt.util._.endsWith(dest, '/')) {
+      if (dest.endsWith('/')) {
         return 'directory';
       } else {
         return 'file';
@@ -55,7 +85,7 @@ module.exports = function(grunt) {
         return;
       }
 
-      if (stat.isFile() && !fileSyncCmp.equalFiles(src, dest)) {
+      if (stat.isFile() && !equalFiles(src, dest)) {
         return;
       }
 
@@ -83,7 +113,7 @@ module.exports = function(grunt) {
         }
 
         if (grunt.file.isDir(src)) {
-          grunt.verbose.writeln('Creating ' + chalk.cyan(dest));
+          grunt.verbose.writeln('Creating ' + cyan(dest));
           grunt.file.mkdir(dest);
           if (options.mode !== false) {
             fs.chmodSync(dest, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
@@ -95,7 +125,7 @@ module.exports = function(grunt) {
 
           tally.dirs++;
         } else {
-          grunt.verbose.writeln('Copying ' + chalk.cyan(src) + ' -> ' + chalk.cyan(dest));
+          grunt.verbose.writeln('Copying ' + cyan(src) + ' -> ' + cyan(dest));
           grunt.file.copy(src, dest, copyOptions);
           if (options.timestamp !== false) {
             syncTimestamp(src, dest);
@@ -117,11 +147,11 @@ module.exports = function(grunt) {
     }
 
     if (tally.dirs) {
-      grunt.log.write('Created ' + chalk.cyan(tally.dirs.toString()) + (tally.dirs === 1 ? ' directory' : ' directories'));
+      grunt.log.write('Created ' + cyan(tally.dirs.toString()) + (tally.dirs === 1 ? ' directory' : ' directories'));
     }
 
     if (tally.files) {
-      grunt.log.write((tally.dirs ? ', copied ' : 'Copied ') + chalk.cyan(tally.files.toString()) + (tally.files === 1 ? ' file' : ' files'));
+      grunt.log.write((tally.dirs ? ', copied ' : 'Copied ') + cyan(tally.files.toString()) + (tally.files === 1 ? ' file' : ' files'));
     }
 
     grunt.log.writeln();
