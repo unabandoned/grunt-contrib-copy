@@ -1,0 +1,29 @@
+schema: 1
+
+package: "@unabandoned/grunt-contrib-copy"
+
+upstream:
+  repo: gruntjs/grunt-contrib-copy
+  reason: "no release since 1.0.0 in March 2016; last commit to the repository in 2022"
+
+summary: >-
+  Grunt task that copies files and folders, with optional content processing,
+  mode and timestamp preservation.
+
+why-forked: >-
+  CyberChef runs it in its build, and the last release ships chalk 1 and
+  file-sync-cmp as runtime dependencies, both frozen for years. Colouring now
+  uses Node's built-in util.styleText and the timestamp comparison is a small
+  in-tree function, so the fork has zero runtime dependencies.
+
+used-by:
+  - consumer: TheTechNetwork/CyberChef
+    purpose: >-
+      the copy:standalone target in Gruntfile.js writes the versioned
+      standalone CyberChef_v<version>.html from build/prod/index.html through
+      a process callback and grunt templates, and copy:ghPages rewrites
+      index.html in place to add analytics and structured data
+
+status: active
+
+tags: [grunt, gruntplugin, build, copy]

@@ -1,6 +1,16 @@
-# grunt-contrib-copy v1.0.0 [![Build Status: Linux](https://travis-ci.org/gruntjs/grunt-contrib-copy.svg?branch=master)](https://travis-ci.org/gruntjs/grunt-contrib-copy) [![Build Status: Windows](https://ci.appveyor.com/api/projects/status/fe6l517l01ys2y86/branch/master?svg=true)](https://ci.appveyor.com/project/gruntjs/grunt-contrib-copy/branch/master)
+# grunt-contrib-copy
 
 > Copy files and folders
+
+> **This is a maintained fork of [grunt-contrib-copy][upstream], published as
+> [`@unabandoned/grunt-contrib-copy`][pkg].** Upstream's last release was 1.0.0
+> in 2016. The task name and options are unchanged; `chalk` is replaced by
+> Node's built-in `util.styleText` and `file-sync-cmp` by an in-tree
+> comparison, so the package has no runtime dependencies. Requires Node.js
+> 22.12 or newer. See [.unabandoned.yml](.unabandoned.yml).
+
+[upstream]: https://github.com/gruntjs/grunt-contrib-copy
+[pkg]: https://www.npmjs.com/package/@unabandoned/grunt-contrib-copy
 
 
 
@@ -9,8 +19,10 @@
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
 
 ```shell
-npm install grunt-contrib-copy --save-dev
+npm install grunt-contrib-copy@npm:@unabandoned/grunt-contrib-copy --save-dev
 ```
+
+Installing it under the alias keeps the `grunt.loadNpmTasks('grunt-contrib-copy')` line below working unchanged.
 
 Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
 
